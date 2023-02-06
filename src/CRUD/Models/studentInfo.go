@@ -1,5 +1,6 @@
 package models
 
+//hello world
 // Studentinfo represents the model of a student
 type StudentInfo struct {
 	ID     string `json:"ID" example:"1"`
