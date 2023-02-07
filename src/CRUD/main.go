@@ -1,9 +1,8 @@
 package main
 
-//hello world
 import (
 	"log"
-	route "main/Routes"
+	routes "main/Routes"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -21,15 +20,15 @@ import (
 // @BasePath /
 func main() {
 	r := mux.NewRouter()
-	//Read
-	r.HandleFunc("/students", route.GetStudents).Methods("GET")
-	//Create
-	r.HandleFunc("/students", route.AddStudents).Methods("POST")
-	//Update
-	r.HandleFunc("/student/{ID}", route.UpdateStudent).Methods("PUT")
-	//Delete
-	r.HandleFunc("/student/{ID}", route.DeleteStudent).Methods("DELETE")
-	//Swagger
+	// Read
+	r.HandleFunc("/students", routes.ReadStudents).Methods("GET")
+	// Create
+	r.HandleFunc("/students", routes.AddStudents).Methods("POST")
+	// Update
+	r.HandleFunc("/student/{ID}", routes.UpdateStudent).Methods("PUT")
+	// Delete
+	r.HandleFunc("/student/{ID}", routes.DeleteStudent).Methods("DELETE")
+	// Swagger
 	r.PathPrefix("/swagger").Handler(httpSwagger.WrapHandler)
 	err := http.ListenAndServe(":8080", r)
 	if err != nil {

@@ -1,11 +1,11 @@
-package route
+package routes
 
-//hellow world
 import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
+	constant "main/Constants"
 	models "main/Models"
 	sqlconnect "main/SqlConnection"
 	"net/http"
@@ -26,26 +26,26 @@ var db *sql.DB
 // @Success 200 {object} Studentinfo
 // @Router /students [post]
 func AddStudents(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constant.HeaderType, constant.JsonString)
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
-	s := models.StudentInfo{}
-	err := json.NewDecoder(r.Body).Decode(&s) //error
+	student := models.StudentInfo{}
+	err := json.NewDecoder(r.Body).Decode(&student) //error
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
-	ID, err := strconv.Atoi(s.ID)
+	ID, err := strconv.Atoi(student.ID)
 	if err != nil {
 		log.Fatal("conversion not possible")
 		return
 	}
-	_, errin := db.Exec("insert into student(Id,Name,Course) values(?,?,?)", ID, s.Name, s.Course)
-	if errin != nil {
+	_, err = db.Exec("insert into student(Id,Name,Course) values(?,?,?)", ID, student.Name, student.Course)
+	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
-	json.NewEncoder(w).Encode(s)
+	json.NewEncoder(w).Encode(student)
 }
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -57,8 +57,8 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err.Error())
 		return
 	}
-	_, errin := db.Exec("delete from student where ID=?", ID)
-	if errin != nil {
+	_, err = db.Exec("delete from student where ID=?", ID)
+	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
@@ -72,42 +72,41 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 // @Produce  json
 // @Success 200 {array} Students
 // @Router /students [get]
-func GetStudents(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func ReadStudents(w http.ResponseWriter, r *http.Request) {
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
 	ss := []models.StudentInfo{}
-	s := models.StudentInfo{}
+	student := models.StudentInfo{}
 	rows, err := db.Query("select*from student")
 	if err != nil {
-		log.Fatal(err.Error()) // log instead of fmt
+		log.Fatal(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else {
-		for rows.Next() {
-			err := rows.Scan(&s.ID, &s.Name, &s.Course)
-			if err != nil {
-				log.Fatal(err.Error())
-				return
-			}
-			ss = append(ss, s)
-		}
-		err := json.NewEncoder(w).Encode(ss)
+	}
+	for rows.Next() {
+		err := rows.Scan(&student.ID, &student.Name, &student.Course)
 		if err != nil {
 			log.Fatal(err.Error())
-			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		ss = append(ss, student)
 	}
-	fmt.Print("After error") // error handling
+	err = json.NewEncoder(w).Encode(ss)
+	if err != nil {
+		log.Fatal(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	fmt.Print("After error")
 }
 
 func UpdateStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(constant.HeaderType, constant.JsonString)
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
-	s := models.StudentInfo{}
-	err := json.NewDecoder(r.Body).Decode(&s)
+	student := models.StudentInfo{}
+	err := json.NewDecoder(r.Body).Decode(&student)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -120,12 +119,11 @@ func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, errin := db.Exec("update student set Name=?, Course=? where ID=?", s.Name, s.Course, ID)
-	if errin != nil {
-		json.NewEncoder(w).Encode("ssssss")
+	_, err = db.Exec("update student set Name=?, Course=? where ID=?", student.Name, student.Course, ID)
+	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
 
-	json.NewEncoder(w).Encode(s)
+	json.NewEncoder(w).Encode(student)
 }
