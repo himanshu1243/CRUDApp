@@ -48,7 +48,7 @@ func AddStudents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(student)
 }
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("constant.HeaderType, constant.JsonString")
+	w.Header().Set(constant.HeaderType, constant.JsonString)
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
 	params := mux.Vars(r)
