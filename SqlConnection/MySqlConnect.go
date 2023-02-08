@@ -1,6 +1,4 @@
 package sqlconnection
-
-//hello world
 import (
 	"database/sql"
 	"log"
