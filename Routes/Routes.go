@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	constant "main/Constants"
+	constants "main/Constants"
 	models "main/Models"
 	sqlconnect "main/SqlConnection"
 	"net/http"
@@ -26,11 +26,11 @@ var db *sql.DB
 // @Success 200 {object} Studentinfo
 // @Router /students [post]
 func AddStudents(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(constant.HeaderType, constant.JsonString)
+	w.Header().Set(constants.ContentType, constants.ApplicationType)
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
 	student := models.StudentInfo{}
-	err := json.NewDecoder(r.Body).Decode(&student) //error
+	err := json.NewDecoder(r.Body).Decode(&student)
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -48,7 +48,7 @@ func AddStudents(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(student)
 }
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(constant.HeaderType, constant.JsonString)
+	w.Header().Set(constants.ContentType, constants.ApplicationType)
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
 	params := mux.Vars(r)
@@ -75,7 +75,7 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 func ReadStudents(w http.ResponseWriter, r *http.Request) {
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
-	ss := []models.StudentInfo{}
+	studentslice := []models.StudentInfo{}
 	student := models.StudentInfo{}
 	rows, err := db.Query("select*from student")
 	if err != nil {
@@ -89,20 +89,18 @@ func ReadStudents(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err.Error())
 			return
 		}
-		ss = append(ss, student)
+		studentslice = append(studentslice, student)
 	}
-	err = json.NewEncoder(w).Encode(ss)
+	err = json.NewEncoder(w).Encode(studentslice)
 	if err != nil {
 		log.Fatal(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	fmt.Print("After error")
 }
 
 func UpdateStudent(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set(constant.HeaderType, constant.JsonString)
+	w.Header().Set(constants.ContentType, constants.ApplicationType)
 	db = sqlconnect.GetMySQLDB()
 	defer db.Close()
 	student := models.StudentInfo{}

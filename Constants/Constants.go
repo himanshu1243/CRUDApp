@@ -1,4 +1,4 @@
-package constant
+package constants
 
-var JsonString = "application/json"
-var HeaderType = "Content-Type"
+var ApplicationType = "application/json"
+var ContentType = "Content-Type"
